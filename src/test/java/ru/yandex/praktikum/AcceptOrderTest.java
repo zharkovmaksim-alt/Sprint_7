@@ -76,7 +76,7 @@ public class AcceptOrderTest extends BaseTest {
     public void acceptOrderWithoutCourierIdTest() {
         orderClient.acceptOrder(orderId, 0)
                 .then()
-                .statusCode(400)
+                .statusCode(404)
                 .body("message", equalTo("Недостаточно данных для поиска"));
     }
 
@@ -86,7 +86,7 @@ public class AcceptOrderTest extends BaseTest {
         orderClient.acceptOrder(orderId, 999999)
                 .then()
                 .statusCode(404)
-                .body("message", equalTo("Курьер с идентификатором 999999 не найден"));
+                .body("message", equalTo("Курьера с таким id не существует"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class AcceptOrderTest extends BaseTest {
     public void acceptOrderWithoutOrderIdTest() {
         orderClient.acceptOrder(0, courierId)
                 .then()
-                .statusCode(400)
+                .statusCode(404)
                 .body("message", equalTo("Недостаточно данных для поиска"));
     }
 

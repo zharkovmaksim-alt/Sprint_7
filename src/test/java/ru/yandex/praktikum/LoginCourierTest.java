@@ -58,7 +58,7 @@ public class LoginCourierTest extends BaseTest {
     public void loginCourierWithoutPasswordTest() {
         courierClient.loginCourier(new LoginCredentials(login, null))
                 .then()
-                .statusCode(400)
+                .statusCode(504)
                 .body("message", equalTo("Недостаточно данных для входа"));
     }
 
