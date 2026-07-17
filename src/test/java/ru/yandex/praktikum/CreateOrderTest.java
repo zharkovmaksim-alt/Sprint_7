@@ -10,6 +10,7 @@ import ru.yandex.praktikum.model.Order;
 
 import java.util.List;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Parameterized.class)
@@ -49,7 +50,7 @@ public class CreateOrderTest extends BaseTest {
 
         orderClient.createOrder(order)
                 .then()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .body("track", notNullValue());
     }
 
