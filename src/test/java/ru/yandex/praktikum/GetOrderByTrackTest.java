@@ -10,6 +10,7 @@ import ru.yandex.praktikum.model.Order;
 
 import java.util.List;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -44,7 +45,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkSuccessGetOrderByTrack() {
         orderClient.getOrderByTrack(track)
                 .then()
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .body("order", notNullValue())
                 .body("order.track", equalTo(track));
     }
@@ -53,7 +54,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkGetOrderWithoutTrackError() {
         orderClient.getOrderByTrack(0)
                 .then()
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для поиска"));
     }
 
@@ -61,7 +62,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkGetOrderNonExistentTrackError() {
         orderClient.getOrderByTrack(999999999)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказ не найден"));
     }
 
