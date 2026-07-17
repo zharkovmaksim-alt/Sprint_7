@@ -77,7 +77,7 @@ public class AcceptOrderTest extends BaseTest {
         orderClient.acceptOrder(orderId, 0)
                 .then()
                 .statusCode(404)
-                .body("message", equalTo("Недостаточно данных для поиска"));
+                .body("message", equalTo("Курьера с таким id не существует"));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class AcceptOrderTest extends BaseTest {
         orderClient.acceptOrder(0, courierId)
                 .then()
                 .statusCode(404)
-                .body("message", equalTo("Недостаточно данных для поиска"));
+                .body("message", equalTo("Заказа с таким id не существует"));
     }
 
     @Test
