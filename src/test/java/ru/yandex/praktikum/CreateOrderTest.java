@@ -50,6 +50,7 @@ public class CreateOrderTest extends BaseTest {
 
         orderClient.createOrder(order)
                 .then()
+                .log().all()
                 .statusCode(SC_CREATED)
                 .body("track", notNullValue());
     }

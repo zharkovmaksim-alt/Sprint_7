@@ -16,6 +16,7 @@ public class OrdersListTest extends BaseTest {
 
         orderClient.getOrdersList()
                 .then()
+                .log().all()
                 .statusCode(SC_OK)
                 .body("orders", notNullValue());
     }

@@ -38,6 +38,7 @@ public class AcceptOrderTest extends BaseTest {
 
         courierId = courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .extract()
                 .path("id");
 
@@ -55,11 +56,13 @@ public class AcceptOrderTest extends BaseTest {
 
         track = orderClient.createOrder(order)
                 .then()
+                .log().all()
                 .extract()
                 .path("track");
 
         orderId = orderClient.getOrderByTrack(track)
                 .then()
+                .log().all()
                 .extract()
                 .path("order.id");
     }
@@ -68,6 +71,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkSuccessAcceptOrder() {
         orderClient.acceptOrder(orderId, courierId)
                 .then()
+                .log().all()
                 .statusCode(SC_OK)
                 .body("ok", equalTo(true));
     }
@@ -76,6 +80,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkMissingCourierIdError() {
         orderClient.acceptOrder(orderId, 0)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьера с таким id не существует"));
     }
@@ -84,6 +89,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkInvalidCourierIdError() {
         orderClient.acceptOrder(orderId, 999999)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьера с таким id не существует"));
     }
@@ -92,6 +98,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkMissingOrderIdError() {
         orderClient.acceptOrder(0, courierId)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказа с таким id не существует"));
     }
@@ -100,6 +107,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkInvalidOrderIdError() {
         orderClient.acceptOrder(999999, courierId)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказа с таким id не существует"));
     }

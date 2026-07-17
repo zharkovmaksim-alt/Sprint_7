@@ -37,6 +37,7 @@ public class GetOrderByTrackTest extends BaseTest {
 
         track = orderClient.createOrder(order)
                 .then()
+                .log().all()
                 .extract()
                 .path("track");
     }
@@ -45,6 +46,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkSuccessGetOrderByTrack() {
         orderClient.getOrderByTrack(track)
                 .then()
+                .log().all()
                 .statusCode(SC_OK)
                 .body("order", notNullValue())
                 .body("order.track", equalTo(track));
@@ -54,6 +56,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkGetOrderWithoutTrackError() {
         orderClient.getOrderByTrack(0)
                 .then()
+                .log().all()
                 .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для поиска"));
     }
@@ -62,6 +65,7 @@ public class GetOrderByTrackTest extends BaseTest {
     public void checkGetOrderNonExistentTrackError() {
         orderClient.getOrderByTrack(999999999)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказ не найден"));
     }

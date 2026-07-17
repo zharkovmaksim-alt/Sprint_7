@@ -30,6 +30,7 @@ public class DeleteCourierTest extends BaseTest {
 
         courierId = courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .extract()
                 .path("id");
     }
@@ -38,6 +39,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkSuccessDeleteCourier() {
         courierClient.deleteCourier(courierId)
                 .then()
+                .log().all()
                 .statusCode(SC_OK)
                 .body("ok", equalTo(true));
         courierId = 0;
@@ -47,6 +49,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkDeleteWithoutIdError() {
         courierClient.deleteCourier(0)
                 .then()
+                .log().all()
                 .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для удаления курьера"));
     }
@@ -55,6 +58,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkDeleteNonExistentError() {
         courierClient.deleteCourier(999999)
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьер с id 999999 не найден"));
     }

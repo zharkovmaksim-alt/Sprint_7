@@ -33,6 +33,7 @@ public class LoginCourierTest extends BaseTest {
 
         courierId = courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .extract()
                 .path("id");
     }
@@ -41,6 +42,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkSuccessLogin() {
         courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .statusCode(SC_OK)
                 .body("id", notNullValue());
     }
@@ -49,6 +51,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkMissingLoginError() {
         courierClient.loginCourier(new LoginCredentials(null, password))
                 .then()
+                .log().all()
                 .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для входа"));
     }
@@ -57,6 +60,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkMissingPasswordError() {
         courierClient.loginCourier(new LoginCredentials(login, null))
                 .then()
+                .log().all()
                 .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для входа"));
     }
@@ -65,6 +69,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkWrongLoginError() {
         courierClient.loginCourier(new LoginCredentials("wrongLogin", password))
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Учетная запись не найдена"));
     }
@@ -73,6 +78,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkWrongPasswordError() {
         courierClient.loginCourier(new LoginCredentials(login, "wrongPass"))
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Учетная запись не найдена"));
     }
@@ -81,6 +87,7 @@ public class LoginCourierTest extends BaseTest {
     public void checkNonExistentUserError() {
         courierClient.loginCourier(new LoginCredentials("nonExistent_" + System.currentTimeMillis(), "pass"))
                 .then()
+                .log().all()
                 .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Учетная запись не найдена"));
     }

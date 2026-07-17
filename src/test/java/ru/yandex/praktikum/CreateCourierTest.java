@@ -9,6 +9,7 @@ import ru.yandex.praktikum.client.CourierClient;
 import ru.yandex.praktikum.model.Courier;
 import ru.yandex.praktikum.model.LoginCredentials;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class CreateCourierTest extends BaseTest {
@@ -31,6 +32,7 @@ public class CreateCourierTest extends BaseTest {
     public int loginCourierAndGetId(String login, String password) {
         return courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .extract()
                 .path("id");
     }
@@ -39,7 +41,8 @@ public class CreateCourierTest extends BaseTest {
     public void checkSuccessResponse() {
         courierClient.createCourier(courier)
                 .then()
-                .statusCode(201)
+                .log().all()
+                .statusCode(SC_CREATED)
                 .body("ok", equalTo(true));
     }
 
@@ -47,7 +50,8 @@ public class CreateCourierTest extends BaseTest {
     public void checkDuplicateCourierError() {
         courierClient.createCourier(courier)
                 .then()
-                .statusCode(409)
+                .log().all()
+                .statusCode(SC_CONFLICT)
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
     }
 
@@ -55,7 +59,8 @@ public class CreateCourierTest extends BaseTest {
     public void checkMissingLoginError() {
         courierClient.createCourier(courier)
                 .then()
-                .statusCode(400)
+                .log().all()
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
@@ -63,7 +68,8 @@ public class CreateCourierTest extends BaseTest {
     public void checkMissingPasswordError() {
         courierClient.createCourier(courier)
                 .then()
-                .statusCode(400)
+                .log().all()
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
@@ -71,7 +77,8 @@ public class CreateCourierTest extends BaseTest {
     public void checkExistingLoginError(Courier courierWithSameLogin) {
         courierClient.createCourier(courierWithSameLogin)
                 .then()
-                .statusCode(409)
+                .log().all()
+                .statusCode(SC_CONFLICT)
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
     }
 
