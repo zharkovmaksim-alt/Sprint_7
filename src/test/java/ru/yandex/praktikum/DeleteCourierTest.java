@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -32,9 +33,8 @@ public class DeleteCourierTest extends BaseTest {
                 .path("id");
     }
 
-    @Test
-    @DisplayName("Удаление курьера - успешный сценарий")
-    public void deleteCourierSuccessTest() {
+    @Step("Проверка успешного удаления курьера")
+    public void checkSuccessDeleteCourier() {
         courierClient.deleteCourier(courierId)
                 .then()
                 .statusCode(200)
@@ -42,28 +42,49 @@ public class DeleteCourierTest extends BaseTest {
         courierId = 0;
     }
 
-    @Test
-    @DisplayName("Удаление курьера - без ID возвращает ошибку")
-    public void deleteCourierWithoutIdTest() {
+    @Step("Проверка ошибки при удалении без ID")
+    public void checkDeleteWithoutIdError() {
         courierClient.deleteCourier(0)
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Недостаточно данных для удаления курьера"));
     }
 
-    @Test
-    @DisplayName("Удаление курьера - несуществующий ID возвращает ошибку")
-    public void deleteCourierNonExistentTest() {
+    @Step("Проверка ошибки при удалении несуществующего курьера")
+    public void checkDeleteNonExistentError() {
         courierClient.deleteCourier(999999)
                 .then()
                 .statusCode(404)
                 .body("message", equalTo("Курьер с id 999999 не найден"));
     }
 
-    @After
-    public void tearDown() {
+    @Step("Удаление курьера после теста")
+    public void deleteCourierAfterTest() {
         if (courierId > 0) {
             courierClient.deleteCourier(courierId);
         }
+    }
+
+    @Test
+    @DisplayName("Удаление курьера - успешный сценарий")
+    public void deleteCourierSuccessTest() {
+        checkSuccessDeleteCourier();
+    }
+
+    @Test
+    @DisplayName("Удаление курьера - без ID возвращает ошибку")
+    public void deleteCourierWithoutIdTest() {
+        checkDeleteWithoutIdError();
+    }
+
+    @Test
+    @DisplayName("Удаление курьера - несуществующий ID возвращает ошибку")
+    public void deleteCourierNonExistentTest() {
+        checkDeleteNonExistentError();
+    }
+
+    @After
+    public void tearDown() {
+        deleteCourierAfterTest();
     }
 }

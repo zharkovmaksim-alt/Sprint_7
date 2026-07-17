@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -35,64 +36,99 @@ public class LoginCourierTest extends BaseTest {
                 .path("id");
     }
 
-    @Test
-    @DisplayName("Логин курьера - успешная авторизация")
-    public void loginCourierSuccessTest() {
+    @Step("Проверка успешного логина")
+    public void checkSuccessLogin() {
         courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
                 .statusCode(200)
                 .body("id", notNullValue());
     }
 
-    @Test
-    @DisplayName("Логин курьера - без логина возвращает ошибку")
-    public void loginCourierWithoutLoginTest() {
+    @Step("Проверка ошибки при отсутствии логина")
+    public void checkMissingLoginError() {
         courierClient.loginCourier(new LoginCredentials(null, password))
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Недостаточно данных для входа"));
     }
 
-    @Test
-    @DisplayName("Логин курьера - без пароля возвращает ошибку")
-    public void loginCourierWithoutPasswordTest() {
+    @Step("Проверка ошибки при отсутствии пароля")
+    public void checkMissingPasswordError() {
         courierClient.loginCourier(new LoginCredentials(login, null))
                 .then()
-                .statusCode(504)
+                .statusCode(400)
                 .body("message", equalTo("Недостаточно данных для входа"));
     }
 
-    @Test
-    @DisplayName("Логин курьера - неверный логин возвращает ошибку")
-    public void loginCourierWrongLoginTest() {
+    @Step("Проверка ошибки при неверном логине")
+    public void checkWrongLoginError() {
         courierClient.loginCourier(new LoginCredentials("wrongLogin", password))
                 .then()
                 .statusCode(404)
                 .body("message", equalTo("Учетная запись не найдена"));
     }
 
-    @Test
-    @DisplayName("Логин курьера - неверный пароль возвращает ошибку")
-    public void loginCourierWrongPasswordTest() {
+    @Step("Проверка ошибки при неверном пароле")
+    public void checkWrongPasswordError() {
         courierClient.loginCourier(new LoginCredentials(login, "wrongPass"))
                 .then()
                 .statusCode(404)
                 .body("message", equalTo("Учетная запись не найдена"));
     }
 
-    @Test
-    @DisplayName("Логин курьера - несуществующий пользователь возвращает ошибку")
-    public void loginCourierNonExistentTest() {
+    @Step("Проверка ошибки при логине несуществующего пользователя")
+    public void checkNonExistentUserError() {
         courierClient.loginCourier(new LoginCredentials("nonExistent_" + System.currentTimeMillis(), "pass"))
                 .then()
                 .statusCode(404)
                 .body("message", equalTo("Учетная запись не найдена"));
     }
 
-    @After
-    public void tearDown() {
+    @Step("Удаление курьера после теста")
+    public void deleteCourierAfterTest() {
         if (courierId > 0) {
             courierClient.deleteCourier(courierId);
         }
+    }
+
+    @Test
+    @DisplayName("Логин курьера - успешная авторизация")
+    public void loginCourierSuccessTest() {
+        checkSuccessLogin();
+    }
+
+    @Test
+    @DisplayName("Логин курьера - без логина возвращает ошибку")
+    public void loginCourierWithoutLoginTest() {
+        checkMissingLoginError();
+    }
+
+    @Test
+    @DisplayName("Логин курьера - без пароля возвращает ошибку")
+    public void loginCourierWithoutPasswordTest() {
+        checkMissingPasswordError();
+    }
+
+    @Test
+    @DisplayName("Логин курьера - неверный логин возвращает ошибку")
+    public void loginCourierWrongLoginTest() {
+        checkWrongLoginError();
+    }
+
+    @Test
+    @DisplayName("Логин курьера - неверный пароль возвращает ошибку")
+    public void loginCourierWrongPasswordTest() {
+        checkWrongPasswordError();
+    }
+
+    @Test
+    @DisplayName("Логин курьера - несуществующий пользователь возвращает ошибку")
+    public void loginCourierNonExistentTest() {
+        checkNonExistentUserError();
+    }
+
+    @After
+    public void tearDown() {
+        deleteCourierAfterTest();
     }
 }

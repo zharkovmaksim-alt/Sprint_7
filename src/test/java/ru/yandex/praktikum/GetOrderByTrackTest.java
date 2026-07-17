@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +40,8 @@ public class GetOrderByTrackTest extends BaseTest {
                 .path("track");
     }
 
-    @Test
-    @DisplayName("Получение заказа по номеру - успешный сценарий")
-    public void getOrderByTrackSuccessTest() {
+    @Step("Проверка успешного получения заказа по треку")
+    public void checkSuccessGetOrderByTrack() {
         orderClient.getOrderByTrack(track)
                 .then()
                 .statusCode(200)
@@ -49,28 +49,49 @@ public class GetOrderByTrackTest extends BaseTest {
                 .body("order.track", equalTo(track));
     }
 
-    @Test
-    @DisplayName("Получение заказа по номеру - без номера возвращает ошибку")
-    public void getOrderByTrackWithoutTrackTest() {
+    @Step("Проверка ошибки при запросе без номера трека")
+    public void checkGetOrderWithoutTrackError() {
         orderClient.getOrderByTrack(0)
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Недостаточно данных для поиска"));
     }
 
-    @Test
-    @DisplayName("Получение заказа по номеру - несуществующий номер возвращает ошибку")
-    public void getOrderByTrackNonExistentTest() {
+    @Step("Проверка ошибки при запросе с несуществующим треком")
+    public void checkGetOrderNonExistentTrackError() {
         orderClient.getOrderByTrack(999999999)
                 .then()
                 .statusCode(404)
                 .body("message", equalTo("Заказ не найден"));
     }
 
-    @After
-    public void tearDown() {
+    @Step("Отмена заказа после теста")
+    public void cancelOrderAfterTest() {
         if (track > 0) {
             orderClient.cancelOrder(track);
         }
+    }
+
+    @Test
+    @DisplayName("Получение заказа по номеру - успешный сценарий")
+    public void getOrderByTrackSuccessTest() {
+        checkSuccessGetOrderByTrack();
+    }
+
+    @Test
+    @DisplayName("Получение заказа по номеру - без номера возвращает ошибку")
+    public void getOrderByTrackWithoutTrackTest() {
+        checkGetOrderWithoutTrackError();
+    }
+
+    @Test
+    @DisplayName("Получение заказа по номеру - несуществующий номер возвращает ошибку")
+    public void getOrderByTrackNonExistentTest() {
+        checkGetOrderNonExistentTrackError();
+    }
+
+    @After
+    public void tearDown() {
+        cancelOrderAfterTest();
     }
 }

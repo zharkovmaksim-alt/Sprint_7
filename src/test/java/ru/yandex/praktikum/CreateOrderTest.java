@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +31,8 @@ public class CreateOrderTest extends BaseTest {
         };
     }
 
-    @Test
-    @DisplayName("Создание заказа с разными цветами")
-    public void createOrderWithDifferentColorsTest() {
+    @Step("Создание заказа с цветами: {colors}")
+    public void sendCreateOrderRequest(List<String> colors) {
         OrderClient orderClient = new OrderClient();
 
         Order order = new Order(
@@ -51,5 +51,11 @@ public class CreateOrderTest extends BaseTest {
                 .then()
                 .statusCode(201)
                 .body("track", notNullValue());
+    }
+
+    @Test
+    @DisplayName("Создание заказа с разными цветами")
+    public void createOrderWithDifferentColorsTest() {
+        sendCreateOrderRequest(colors);
     }
 }

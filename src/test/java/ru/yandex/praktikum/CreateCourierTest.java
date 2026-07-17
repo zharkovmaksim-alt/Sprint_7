@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +22,66 @@ public class CreateCourierTest extends BaseTest {
         courierClient = new CourierClient();
     }
 
+    @Step("Создание курьера с логином: {courier.login}")
+    public void sendCreateCourierRequest(Courier courier) {
+        courierClient.createCourier(courier);
+    }
+
+    @Step("Логин курьера с логином: {login}")
+    public int loginCourierAndGetId(String login, String password) {
+        return courierClient.loginCourier(new LoginCredentials(login, password))
+                .then()
+                .extract()
+                .path("id");
+    }
+
+    @Step("Проверка успешного создания курьера")
+    public void checkSuccessResponse() {
+        courierClient.createCourier(courier)
+                .then()
+                .statusCode(201)
+                .body("ok", equalTo(true));
+    }
+
+    @Step("Проверка ошибки при создании дубликата курьера")
+    public void checkDuplicateCourierError() {
+        courierClient.createCourier(courier)
+                .then()
+                .statusCode(409)
+                .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
+    }
+
+    @Step("Проверка ошибки при отсутствии логина")
+    public void checkMissingLoginError() {
+        courierClient.createCourier(courier)
+                .then()
+                .statusCode(400)
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+    }
+
+    @Step("Проверка ошибки при отсутствии пароля")
+    public void checkMissingPasswordError() {
+        courierClient.createCourier(courier)
+                .then()
+                .statusCode(400)
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+    }
+
+    @Step("Проверка ошибки при использовании существующего логина")
+    public void checkExistingLoginError(Courier courierWithSameLogin) {
+        courierClient.createCourier(courierWithSameLogin)
+                .then()
+                .statusCode(409)
+                .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
+    }
+
+    @Step("Удаление курьера после теста")
+    public void deleteCourierAfterTest() {
+        if (courierId > 0) {
+            courierClient.deleteCourier(courierId);
+        }
+    }
+
     @Test
     @DisplayName("Создание курьера - успешный сценарий")
     public void createCourierSuccessTest() {
@@ -30,15 +91,9 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(login, password, firstName);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(201)
-                .body("ok", equalTo(true));
+        checkSuccessResponse();
 
-        courierId = courierClient.loginCourier(new LoginCredentials(login, password))
-                .then()
-                .extract()
-                .path("id");
+        courierId = loginCourierAndGetId(login, password);
     }
 
     @Test
@@ -50,19 +105,10 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(login, password, firstName);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(201);
+        sendCreateCourierRequest(courier);
+        checkDuplicateCourierError();
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(409)
-                .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
-
-        courierId = courierClient.loginCourier(new LoginCredentials(login, password))
-                .then()
-                .extract()
-                .path("id");
+        courierId = loginCourierAndGetId(login, password);
     }
 
     @Test
@@ -73,10 +119,7 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(null, password, firstName);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(400)
-                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+        checkMissingLoginError();
     }
 
     @Test
@@ -87,10 +130,7 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(login, null, firstName);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(400)
-                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+        checkMissingPasswordError();
     }
 
     @Test
@@ -101,15 +141,9 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(login, password, null);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(201)
-                .body("ok", equalTo(true));
+        checkSuccessResponse();
 
-        courierId = courierClient.loginCourier(new LoginCredentials(login, password))
-                .then()
-                .extract()
-                .path("id");
+        courierId = loginCourierAndGetId(login, password);
     }
 
     @Test
@@ -121,26 +155,16 @@ public class CreateCourierTest extends BaseTest {
 
         courier = new Courier(login, password, firstName);
 
-        courierClient.createCourier(courier)
-                .then()
-                .statusCode(201);
+        sendCreateCourierRequest(courier);
 
         Courier courierWithSameLogin = new Courier(login, "otherPass", "OtherName");
-        courierClient.createCourier(courierWithSameLogin)
-                .then()
-                .statusCode(409)
-                .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
+        checkExistingLoginError(courierWithSameLogin);
 
-        courierId = courierClient.loginCourier(new LoginCredentials(login, password))
-                .then()
-                .extract()
-                .path("id");
+        courierId = loginCourierAndGetId(login, password);
     }
 
     @After
     public void tearDown() {
-        if (courierId > 0) {
-            courierClient.deleteCourier(courierId);
-        }
+        deleteCourierAfterTest();
     }
 }
