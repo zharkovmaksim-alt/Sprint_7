@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import ru.yandex.praktikum.model.Order;
 
 import java.util.List;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Parameterized.class)
@@ -30,9 +32,8 @@ public class CreateOrderTest extends BaseTest {
         };
     }
 
-    @Test
-    @DisplayName("Создание заказа с разными цветами")
-    public void createOrderWithDifferentColorsTest() {
+    @Step("Создание заказа с цветами: {colors}")
+    public void sendCreateOrderRequest(List<String> colors) {
         OrderClient orderClient = new OrderClient();
 
         Order order = new Order(
@@ -49,7 +50,14 @@ public class CreateOrderTest extends BaseTest {
 
         orderClient.createOrder(order)
                 .then()
-                .statusCode(201)
+                .log().all()
+                .statusCode(SC_CREATED)
                 .body("track", notNullValue());
+    }
+
+    @Test
+    @DisplayName("Создание заказа с разными цветами")
+    public void createOrderWithDifferentColorsTest() {
+        sendCreateOrderRequest(colors);
     }
 }

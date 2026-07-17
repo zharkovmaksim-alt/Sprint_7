@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import ru.yandex.praktikum.client.CourierClient;
 import ru.yandex.praktikum.model.Courier;
 import ru.yandex.praktikum.model.LoginCredentials;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteCourierTest extends BaseTest {
@@ -28,42 +30,66 @@ public class DeleteCourierTest extends BaseTest {
 
         courierId = courierClient.loginCourier(new LoginCredentials(login, password))
                 .then()
+                .log().all()
                 .extract()
                 .path("id");
+    }
+
+    @Step("Проверка успешного удаления курьера")
+    public void checkSuccessDeleteCourier() {
+        courierClient.deleteCourier(courierId)
+                .then()
+                .log().all()
+                .statusCode(SC_OK)
+                .body("ok", equalTo(true));
+        courierId = 0;
+    }
+
+    @Step("Проверка ошибки при удалении без ID")
+    public void checkDeleteWithoutIdError() {
+        courierClient.deleteCourier(0)
+                .then()
+                .log().all()
+                .statusCode(SC_BAD_REQUEST)
+                .body("message", equalTo("Недостаточно данных для удаления курьера"));
+    }
+
+    @Step("Проверка ошибки при удалении несуществующего курьера")
+    public void checkDeleteNonExistentError() {
+        courierClient.deleteCourier(999999)
+                .then()
+                .log().all()
+                .statusCode(SC_NOT_FOUND)
+                .body("message", equalTo("Курьер с id 999999 не найден"));
+    }
+
+    @Step("Удаление курьера после теста")
+    public void deleteCourierAfterTest() {
+        if (courierId > 0) {
+            courierClient.deleteCourier(courierId);
+        }
     }
 
     @Test
     @DisplayName("Удаление курьера - успешный сценарий")
     public void deleteCourierSuccessTest() {
-        courierClient.deleteCourier(courierId)
-                .then()
-                .statusCode(200)
-                .body("ok", equalTo(true));
-        courierId = 0;
+        checkSuccessDeleteCourier();
     }
 
     @Test
     @DisplayName("Удаление курьера - без ID возвращает ошибку")
     public void deleteCourierWithoutIdTest() {
-        courierClient.deleteCourier(0)
-                .then()
-                .statusCode(400)
-                .body("message", equalTo("Недостаточно данных для удаления курьера"));
+        checkDeleteWithoutIdError();
     }
 
     @Test
     @DisplayName("Удаление курьера - несуществующий ID возвращает ошибку")
     public void deleteCourierNonExistentTest() {
-        courierClient.deleteCourier(999999)
-                .then()
-                .statusCode(404)
-                .body("message", equalTo("Курьер с id 999999 не найден"));
+        checkDeleteNonExistentError();
     }
 
     @After
     public void tearDown() {
-        if (courierId > 0) {
-            courierClient.deleteCourier(courierId);
-        }
+        deleteCourierAfterTest();
     }
 }
