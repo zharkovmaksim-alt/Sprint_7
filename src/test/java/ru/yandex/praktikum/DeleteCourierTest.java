@@ -9,6 +9,7 @@ import ru.yandex.praktikum.client.CourierClient;
 import ru.yandex.praktikum.model.Courier;
 import ru.yandex.praktikum.model.LoginCredentials;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteCourierTest extends BaseTest {
@@ -37,7 +38,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkSuccessDeleteCourier() {
         courierClient.deleteCourier(courierId)
                 .then()
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .body("ok", equalTo(true));
         courierId = 0;
     }
@@ -46,7 +47,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkDeleteWithoutIdError() {
         courierClient.deleteCourier(0)
                 .then()
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для удаления курьера"));
     }
 
@@ -54,7 +55,7 @@ public class DeleteCourierTest extends BaseTest {
     public void checkDeleteNonExistentError() {
         courierClient.deleteCourier(999999)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьер с id 999999 не найден"));
     }
 
