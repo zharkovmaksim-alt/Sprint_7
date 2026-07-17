@@ -13,6 +13,7 @@ import ru.yandex.praktikum.model.Order;
 
 import java.util.List;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class AcceptOrderTest extends BaseTest {
@@ -67,7 +68,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkSuccessAcceptOrder() {
         orderClient.acceptOrder(orderId, courierId)
                 .then()
-                .statusCode(200)
+                .statusCode(SC_OK)
                 .body("ok", equalTo(true));
     }
 
@@ -75,7 +76,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkMissingCourierIdError() {
         orderClient.acceptOrder(orderId, 0)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьера с таким id не существует"));
     }
 
@@ -83,7 +84,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkInvalidCourierIdError() {
         orderClient.acceptOrder(orderId, 999999)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Курьера с таким id не существует"));
     }
 
@@ -91,7 +92,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkMissingOrderIdError() {
         orderClient.acceptOrder(0, courierId)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказа с таким id не существует"));
     }
 
@@ -99,7 +100,7 @@ public class AcceptOrderTest extends BaseTest {
     public void checkInvalidOrderIdError() {
         orderClient.acceptOrder(999999, courierId)
                 .then()
-                .statusCode(404)
+                .statusCode(SC_NOT_FOUND)
                 .body("message", equalTo("Заказа с таким id не существует"));
     }
 
